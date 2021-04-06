@@ -1,9 +1,13 @@
 import React, { Component } from 'react';
 import Button from '../../../components/UI/Button/Button';
 import classes from "./ContactData.module.css";
-import axios from "../../../axios-orders";
+import axios from "../../../axios/axios-orders";
+
 import Spinner from "../../../components/UI/Spinner/Spinner";
 import Input from '../../../components/UI/Input/Input';
+import { connect } from 'react-redux';
+import withErrorHandler from '../../../hoc/withErrorHandler/withErrorHandler';
+import * as orderActions from "../../../store/actions";
 
 class ContactData extends Component {
     state={
@@ -83,12 +87,11 @@ class ContactData extends Component {
                    {value: 'nearest', displayValue: 'Nearest'}
                ]
             },
-            value: '',  ///'fastest' as in for ui by default we must have something rather than an empty string
+            value: 'fastest',  ///'fastest' as in for ui by default we must have something rather than an empty string
             validation:{},
             valid: true
         }
     },
-        loading: false,
         formIsValid: false
 }
 
@@ -140,8 +143,7 @@ class ContactData extends Component {
 
     orderHandler = (event)=>{
         event.preventDefault();
-        // console.log(this.props.ingredients);
-        this.setState({loading : true});
+        // console.log(this.props.ings);
 
         const formData={};
         for(let formElementIdentifier in this.state.orderForm){
@@ -149,21 +151,12 @@ class ContactData extends Component {
         }
 
         const order ={
-            ingredients: this.props.ingredients,
-            price: this.props.price,
+            ingredients: this.props.ings,
+            price: this.props.totalPrice,
             orderData: formData
         }
-        axios.post('/orders.json', order)
-        .then(response => {
-            this.setState({loading : false})
-            console.log(response);
-            // this.props.history.push('/')       //THIS CAN WORK USING hoc of withRouter() or passing in props individually
-            this.props.history.push('/');
-        })
-        .catch(error => {
-            this.setState({loading : false})
-            console.log(error);
-        })
+        this.props.onOrderBurger(order);
+
     }
 
     render() {
@@ -177,8 +170,6 @@ class ContactData extends Component {
 
         let form= (
             <form onSubmit={this.orderHandler} >
-
-            {/* <Input elementType="..." elementConfig="..." value="..." /> */}
 
             {formElementArray.map(formElement => (
                 <Input key={formElement.id}
@@ -197,7 +188,8 @@ class ContactData extends Component {
             ORDER </Button>                   
         </form>
         );
-        if(this.state.loading){
+
+        if(this.props.loading){
             form= <Spinner/>
         }
 
@@ -210,4 +202,18 @@ class ContactData extends Component {
     }
 }
 
-export default ContactData;
+const mapStatetoProps= state =>{
+    return{
+        ings: state.burgerBuilder.ingredients,
+        totalPrice: state.burgerBuilder.totalPrice,
+        loading: state.order.loading
+    }
+};
+
+const mapDispatchtoProps = dispatch =>{
+   return{
+       onOrderBurger: (orderData)=> dispatch(orderActions.purchaseBurger(orderData))
+   }
+}
+
+export default connect(mapStatetoProps, mapDispatchtoProps)(withErrorHandler(ContactData, axios));
