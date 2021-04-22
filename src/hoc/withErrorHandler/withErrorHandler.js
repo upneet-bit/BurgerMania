@@ -4,29 +4,52 @@ import Aux from '../Auxilary';
 
 const withErrorHandler = (WrappedComponent, axios) => {
     return class extends Component {
-
-        constructor(){
-            super();
-            this.reqInterceptor = axios.interceptors.request.use(req =>{
-                this.setState({error: null})
-                return req;
-            })
-            this.resInterceptor = axios.interceptors.response.use(res=>res, error =>{
-                this.setState({error: error})
-            })
-        }
-     
         state={
             error: null
-        }
+        };
+        
+        // constructor(){
+        //     super();
+        //     this.reqInterceptor =  axios.interceptors.request.use(req =>{
+        //         console.log(req);
+        //          this.setState({error: null});
+        //          console.log("CALLED OFF VIA REQUEST");
+        //          return req;
+        //      }, error=>{
+        //          console.log(error);
+        //          this.setState({error: error});
+        //          return Promise.reject(error);
+        //      });
+ 
+        //      this.resInterceptor = axios.interceptors.response.use(res=>{
+        //          console.log(res);
+        //          return res;
+        //      }, error=>{
+        //          console.log(error);
+        //          this.setState({error: error});
+        //          return Promise.reject(error);
+        //      })
+        // }
 
         componentWillMount(){
            this.reqInterceptor =  axios.interceptors.request.use(req =>{
-                this.setState({error: null})
+            //    console.log(req);
+                this.setState({error: null});
+                // console.log("CALLED OFF VIA REQUEST");
                 return req;
-            })
-             this.resInterceptor = axios.interceptors.response.use(res=>res, error =>{
-                this.setState({error: error})
+            }, error=>{
+                // console.log(error);
+                this.setState({error: error});
+                return Promise.reject(error);
+            });
+
+            this.resInterceptor = axios.interceptors.response.use(res=>{
+                // console.log(res);
+                return res;
+            }, error=>{
+                // console.log(error);
+                this.setState({error: error});
+                return Promise.reject(error);
             })
         }
 
@@ -37,14 +60,16 @@ const withErrorHandler = (WrappedComponent, axios) => {
         }
 
         errorConfirmedHandler = ()=>{
-            this.setState({error: null})
+            this.setState({error: null});
+            // console.log("ERROR-CLOSED");
         }
 
         render(){
+            // console.log(this.state.error);
             return(
                 <Aux>
                     <Modal 
-                        show={this.state.error? true: false} 
+                        show={this.state.error ? true: false} 
                         modalClosed={this.errorConfirmedHandler}>
                         {this.state.error? this.state.error.message : null}
                     </Modal>

@@ -5,8 +5,10 @@ import ContactData from './ContactData/ContactData';
 import { connect } from 'react-redux';
 
 class Checkout extends Component {
+    componentDidMount(){
+        // console.log("CHECKOUT CALLED!");
+    }
   
-
     checkoutCancelledHandler = ()=>{
         this.props.history.goBack();
     }
@@ -16,12 +18,11 @@ class Checkout extends Component {
     }
 
     render() {
-        console.log(this.props.ings);
+        // console.log(this.props.ings);
         let summary= <Redirect to="/" />
 
         if(this.props.ings){
-            const purchasedRedirect= this.props.purchased ? <Redirect to="/" /> : null;
-
+            const purchasedRedirect= this.props.purchased ? <Redirect to="/checkout" /> : null;
             summary=(
             <div>
                 {purchasedRedirect}
